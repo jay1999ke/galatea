@@ -1,0 +1,72 @@
+import torch
+
+device = torch.device("cuda:0")
+
+class RBM(object):
+
+    def __init__(self,no_x=784,no_h=256,k=1,alpha=0.01,epoch=30):
+        """
+        m = no_x; x,c = (m,1)
+        n = no_h; h,b = (n,1)
+                ; W   = (n,m)
+        """
+        self.m = no_x
+        self.n = no_h
+        self.epoch = epoch
+        m = no_x
+        n = no_h
+
+        self.W = torch.rand((n,m)).to(device)
+        self.c = torch.rand((m,1)).to(device)
+        self.b = torch.rand((n,1)).to(device)
+        self.k = k
+        self.alpha = alpha
+
+    def energy(self,x,h):
+        return -(torch.mm(torch.mm(h.t(),self.W),x) + torch.mm(self.c.t(),x) + torch.mm(self.b.t(),h))
+
+    def _h(self,x):
+        return torch.sigmoid(self.b + torch.mm(self.W,x))
+
+    def _x(self,h):
+        return torch.sigmoid(self.c + torch.mm(self.W.t(),h))
+
+    def reconstruction(self,x):
+        h = self._h(x)
+        h_act = torch.bernoulli(h)
+        x_r = self._x(h_act)
+        return x_r
+
+
+    def CDk(self,dataloader):
+        print("inside the beast")
+        for j in range(self.epoch):
+            e = 0
+            for i,(x,_) in enumerate(dataloader):
+                
+                h_probs = self._h(x)
+                h_act = torch.bernoulli(h_probs).to(device)
+                positive_h = h_act
+                positive_phase = torch.mm(h_act,x.t())
+
+                for t in range(self.k):
+                    x_probs = self._x(h_act)
+                    h_probs = self._h(x_probs)
+                    h_act = torch.bernoulli(h_probs).to(device)
+
+                negative_phase = torch.mm(h_probs,x_probs.t())
+                negative_h = h_probs
+
+                self.W+= self.alpha * ( positive_phase - negative_phase)
+                self.b+= self.alpha * ( positive_h - negative_h )
+                self.c+= self.alpha * ( x - x_probs)
+
+                e+= ( x - x_probs)**2
+            print(j,e.sum()/len(dataloader))
+
+
+
+            torch.save(self.W,"weights/rbm/W.pt")
+            torch.save(self.b,"weights/rbm/b.pt")
+            torch.save(self.c,"weights/rbm/c.pt")
+    
