@@ -41,15 +41,15 @@ class Mnist(object):
 
     def __len__(self):
         if self.MODE == "train":
-            return 60000
+            return int(60000/100)
         else:
-            return 10000
+            return int(10000/100)
 
     def __getitem__(self,index):
         if self.MODE == "train":
-            return self.trainX[index].view(-1,1), self.trainY[index]
+            return self.trainX[100*index:100*index+100].t(), self.trainY[index]
         else:
-            return self.testX[index].view(-1,1), self.testY[index]
+            return self.testX[100*index:100*index+100].t(), self.testY[index]
         
 
 
