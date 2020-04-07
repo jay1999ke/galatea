@@ -4,7 +4,7 @@ device = torch.device("cuda:0")
 
 class RBM(object):
 
-    def __init__(self,no_x=784,no_h=256,k=10,alpha=0.000001,epoch=30):
+    def __init__(self,no_x=784,no_h=256,k=10,alpha=0.001,epoch=30):
         """
         m = no_x; x,c = (m,1)
         n = no_h; h,b = (n,1)
@@ -52,16 +52,15 @@ class RBM(object):
 
                 for t in range(self.k):
                     x_probs = self._x(h_act)
-                    x_act = (x_probs >= torch.rand(x_probs.shape).to(device)).float()
-                    h_probs = self._h(x_act)
+                    h_probs = self._h(x_probs)
                     h_act = (h_probs >= torch.rand(h_probs.shape).to(device)).float()
 
-                negative_phase = torch.mm(h_probs,x_act.t())
+                negative_phase = torch.mm(h_probs,x_probs.t())
                 negative_h = h_probs
 
                 self.W+= self.alpha * ( positive_phase - negative_phase)
-                self.b+= self.alpha * ( positive_h - negative_h ).sum()
-                self.c+= self.alpha * ( x - x_act).sum()
+                self.b+= self.alpha * ( positive_h - negative_h ).sum()/100
+                self.c+= self.alpha * ( x - x_probs).sum()/100
 
                 e+= (abs( x - x_probs)).sum().detach()
                 if i%100==0 and i!=0:
