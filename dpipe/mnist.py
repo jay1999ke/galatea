@@ -47,9 +47,9 @@ class Mnist(object):
 
     def __getitem__(self,index):
         if self.MODE == "train":
-            return self.trainX[100*index:100*index+100].t(), self.trainY[index]
+            return self.trainX[100*index:100*index+100].t(), self.trainY[100*index:100*index+100].view(-1).long()
         else:
-            return self.testX[100*index:100*index+100].t(), self.testY[index]
+            return self.testX[100*index:100*index+100].t(), self.testY[100*index:100*index+100].view(-1).long()
         
 
 

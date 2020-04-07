@@ -4,21 +4,23 @@ device = torch.device("cuda:0")
 
 class RBM(object):
 
-    def __init__(self,no_x=784,no_h=256,k=10,alpha=0.001,epoch=30):
+    def __init__(self,no_x=784,no_h=100,k=10,alpha=0.001,epoch=50):
         """
         m = no_x; x,c = (m,1)
         n = no_h; h,b = (n,1)
                 ; W   = (n,m)
         """
         self.m = no_x
+        self.no_x = no_x
         self.n = no_h
+        self.no_h = no_h
         self.epoch = epoch
         m = no_x
         n = no_h
 
-        self.W = torch.rand((n,m)).to(device)
-        self.c = torch.rand((m,1)).to(device)
-        self.b = torch.rand((n,1)).to(device)
+        self.W = torch.load("weights/rbm/W100.pt").to(device)
+        self.c = torch.load("weights/rbm/c100.pt").to(device)
+        self.b = torch.load("weights/rbm/b100.pt").to(device)
         self.k = k
         self.alpha = alpha
 
@@ -33,8 +35,7 @@ class RBM(object):
 
     def reconstruction(self,x):
         h = self._h(x)
-        h_act = torch.bernoulli(h)
-        x_r = self._x(h_act)
+        x_r = self._x(h)
         return x_r
 
 
@@ -45,15 +46,14 @@ class RBM(object):
             for i,(x,_) in enumerate(dataloader):
                 if torch.Size([784,0]) == x.shape:
                     break
+                
                 h_probs = self._h(x)
-                h_act = (h_probs >= torch.rand(h_probs.shape).to(device)).float()
                 positive_h = h_probs
                 positive_phase = torch.mm(h_probs,x.t())
 
                 for t in range(self.k):
-                    x_probs = self._x(h_act)
+                    x_probs = self._x(h_probs)
                     h_probs = self._h(x_probs)
-                    h_act = (h_probs >= torch.rand(h_probs.shape).to(device)).float()
 
                 negative_phase = torch.mm(h_probs,x_probs.t())
                 negative_h = h_probs
@@ -69,7 +69,26 @@ class RBM(object):
 
 
 
-            torch.save(self.W,"weights/rbm/W.pt")
-            torch.save(self.b,"weights/rbm/b.pt")
-            torch.save(self.c,"weights/rbm/c.pt")
-    
+            torch.save(self.W,"weights/rbm/W100.pt")
+            torch.save(self.b,"weights/rbm/b100.pt")
+            torch.save(self.c,"weights/rbm/c100.pt")
+
+
+class RBMClassifier(torch.nn.Module):
+
+    def __init__(self,RBM,classes=10):
+        super(RBMClassifier,self).__init__()
+
+        self.RBM = RBM
+
+        self.classifier = torch.nn.Linear(RBM.no_h,classes*5)
+        self.classifier2 = torch.nn.Linear(classes*5,classes)
+        self.sigmoid = torch.nn.Sigmoid()
+
+    def forward(self,x):
+        
+        x = self.RBM._h(x)
+        x = self.classifier(x)
+        x = self.sigmoid(x)
+        x = self.classifier2(x)
+        return self.sigmoid(x)
