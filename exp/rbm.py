@@ -20,23 +20,46 @@ def modeler():
         model.k = k
         model.CDk(data)
 
-def recons():
-    data = Mnist()
+def recon():
+    x = torch.load("weights/rbm/test.pt")
     model = RBM()
 
-    for i in range(0,600,60):
-        x = data[i][0].t()[0]
+    fig, ax = plt.subplots(nrows=1, ncols=2)
+    x_new = x.clone()
+    ax[0].imshow(x.view(28,28).numpy())
+    
+    x_new = model.reconstruction(x_new.cuda())
+
+    ax[1].imshow(x_new.view(28,28).detach().cpu().numpy())
+    plt.show()
+
+
+def recons():
+    data = Mnist()
+    data.MODE = "test"
+    model = RBM()
+
+    fig, ax = plt.subplots(nrows=2, ncols=10)
+
+    c = 0
+    for i in range(0,100,10):
+        x = data[i+2][0].t()[0]*255
 
         x = x.view(784,1)
+        
+        mask = (torch.rand(x.shape).cuda() > 0.2).float()
+        x = x * mask
         x_new = x.clone()
-        plt.imshow(x.view(28,28).detach().cpu().numpy())
-        plt.show()
+        ax[0][c].imshow(x.view(28,28).detach().cpu().numpy())
+        
         for i in range(6):
             x_new = model.reconstruction(x_new)
 
         x = x_new.view(28,28).detach().cpu().numpy()
-        plt.imshow(x)
-        plt.show()
+        ax[1][c].imshow(x)
+        c+=1
+    
+    plt.show()
 
 def classify():
     data = Mnist()
@@ -82,9 +105,24 @@ def test():
     val, ind = out.max(1)
 
 def analyze():
-    w = torch.load("weights/rbm/W100.pt").cpu()
+    w = torch.load("weights/rbm/W100s.pt").cpu()
 
     fig, ax = plt.subplots(nrows=10, ncols=10)
+
+    plt.axis('off')
+    i=0
+    for row in ax:
+        for col in row:
+            col.imshow(w[i].view(28,28))
+            col.set_axis_off()
+            i+=1
+    
+    plt.show()
+
+def analyze2():
+    w = torch.load("weights/rbm/W16.pt").cpu()
+
+    fig, ax = plt.subplots(nrows=4, ncols=4)
 
     plt.axis('off')
     i=0

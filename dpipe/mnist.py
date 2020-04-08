@@ -4,6 +4,8 @@ import scipy.io as mat
 
 device = torch.device("cuda:0")
 
+
+
 class smallMnist(object):
 
     def __init__(self):
