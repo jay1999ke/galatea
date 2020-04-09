@@ -77,7 +77,7 @@ def classify():
                 break
             
             out = model(x)
-
+            optimizer.zero_grad()
             loss = loss_fn(out,y.long())
             tots+=loss.item()
             loss.backward()
@@ -138,4 +138,4 @@ def analyze2():
 
 
 if __name__ == "__main__":
-    analyze()
+    classify()
