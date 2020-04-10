@@ -13,7 +13,7 @@ class Generator(nn.Module):
         self.layer3 = nn.Linear(out_dim//4,out_dim//2)
         self.layer4 = nn.Linear(out_dim//2,out_dim)
         
-        self.leakyRelu = nn.LeakyReLU(0.2)
+        self.leakyRelu = nn.LeakyReLU(0.3)
         self.tanh = nn.Tanh()
 
     def forward(self,x):
@@ -32,7 +32,7 @@ class Discriminator(nn.Module):
         self.layer3 = nn.Linear(in_dim//4,in_dim//8)
         self.layer4 = nn.Linear(in_dim//8,1)
 
-        self.relu = nn.ReLU()
+        self.relu = nn.LeakyReLU(0.3)
         self.sigmoid = nn.Sigmoid()
         self.dpout = nn.Dropout(0.2)
 
