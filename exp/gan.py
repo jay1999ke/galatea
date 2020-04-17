@@ -105,7 +105,7 @@ def train():
 
 
 def check():
-    noise = torch.randn((36,100))    
+    noise = torch.randn((400,100))    
 
     model = GAN()
 
@@ -113,7 +113,7 @@ def check():
 
     out = model.G(noise)
 
-    fig, ax = plt.subplots(nrows=6, ncols=6)
+    fig, ax = plt.subplots(nrows=20, ncols=20)
 
     plt.axis('off')
     i=0

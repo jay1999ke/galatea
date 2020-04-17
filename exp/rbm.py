@@ -138,4 +138,4 @@ def analyze2():
 
 
 if __name__ == "__main__":
-    classify()
+    analyze()
