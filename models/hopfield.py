@@ -14,6 +14,7 @@ class Hopfield(object):
 
         self.hidden_units = hidden
         self.visible_units = visible
+        self.device = device
 
         self.total_units = hidden + visible
 
