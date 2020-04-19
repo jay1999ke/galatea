@@ -10,11 +10,10 @@
 
 ### Ongoing
 
-- Boltzmann (without hidden)
+- Boltzmann 
 
 ### TODO
 
-- Boltzmann (with hidden)
 - VAE
 - DBM
 - DBN
