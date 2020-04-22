@@ -7,14 +7,15 @@
 - GAN
 - RBM (Bernouli-Bernouli)
 - Hopfield
+- Boltzmann 
+- VAE
 
 ### Ongoing
 
-- Boltzmann 
+
 
 ### TODO
 
-- VAE
 - DBM
 - DBN
 - Helmholtz 
