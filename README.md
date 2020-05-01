@@ -12,7 +12,7 @@
 
 ### Ongoing
 
-
+- cGAN
 
 ### TODO
 
