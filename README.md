@@ -20,6 +20,7 @@
 - DBN
 - Helmholtz 
 - PixelCNN
+- Beta VAE
 
 ## Long - term
 
