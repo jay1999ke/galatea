@@ -32,26 +32,33 @@ class smallMnist(object):
 
 class Mnist(object):
 
-    def __init__(self):
+    def __init__(self,batch_size=100,norm="div"):
         self.MODE = "train"
-
+        self.batch_size = batch_size
         raw_data = mat.loadmat("data/mnist.mat")
-        self.trainX = torch.Tensor(raw_data["trainX"]/255).to(device)
-        self.testX = torch.Tensor(raw_data["testX"]/255).to(device)
+
+        if norm == "div":
+            self.trainX = torch.Tensor(raw_data["trainX"]/255).to(device)
+            self.testX = torch.Tensor(raw_data["testX"]/255).to(device)
+        elif norm == "zero_mean":
+            self.trainX = torch.Tensor(raw_data["trainX"]).to(device) - 127
+            self.testX = torch.Tensor(raw_data["testX"]).to(device) - 127
+            self.trainX/=127
+            self.testX/=127
         self.trainY = torch.Tensor(raw_data["trainY"]).t().to(device)
         self.testY = torch.Tensor(raw_data["testY"]).t().to(device)
 
     def __len__(self):
         if self.MODE == "train":
-            return int(60000/100)
+            return int(60000/self.batch_size)
         else:
-            return int(10000/100)
+            return int(10000/self.batch_size)
 
     def __getitem__(self,index):
         if self.MODE == "train":
-            return self.trainX[100*index:100*index+100].t(), self.trainY[100*index:100*index+100].view(-1).long()
+            return self.trainX[self.batch_size*index:self.batch_size*index+self.batch_size].t(), self.trainY[self.batch_size*index:self.batch_size*index+self.batch_size].view(-1).long()
         else:
-            return self.testX[100*index:100*index+100].t(), self.testY[100*index:100*index+100].view(-1).long()
+            return self.testX[self.batch_size*index:self.batch_size*index+self.batch_size].t(), self.testY[self.batch_size*index:self.batch_size*index+self.batch_size].view(-1).long()
         
 
 

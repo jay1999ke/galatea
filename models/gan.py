@@ -57,16 +57,12 @@ class cGenerator(nn.Module):
         super(cGenerator,self).__init__()
 
         self.layer1_1 = nn.Linear(z_dim,out_dim//8)
-        self.layer1_1_bn = nn.BatchNorm1d(out_dim//8)
 
         self.layer1_2 = nn.Linear(classes,out_dim//8)
-        self.layer1_2_bn = nn.BatchNorm1d(out_dim//8)
 
         self.layer2 = nn.Linear(out_dim//4,out_dim//4)
-        self.layer2_bn = nn.BatchNorm1d(out_dim//4)
 
         self.layer3 = nn.Linear(out_dim//4,out_dim//2)
-        self.layer3_bn = nn.BatchNorm1d(out_dim//2)
 
         self.layer4 = nn.Linear(out_dim//2,out_dim)
         
@@ -74,11 +70,11 @@ class cGenerator(nn.Module):
         self.tanh = nn.Tanh()
 
     def forward(self,x,classes):
-        x_z = self.leakyRelu(self.layer1_1_bn(self.layer1_1(x)))
-        x_c = self.leakyRelu(self.layer1_2_bn(self.layer1_2(classes)))
+        x_z = self.leakyRelu(self.layer1_1(x))
+        x_c = self.leakyRelu(self.layer1_2(classes))
         x = torch.cat((x_z,x_c),1)
-        x = self.leakyRelu(self.layer2_bn(self.layer2(x)))
-        x = self.leakyRelu(self.layer3_bn(self.layer3(x)))
+        x = self.leakyRelu(self.layer2(x))
+        x = self.leakyRelu(self.layer3(x))
         return self.tanh(self.layer4(x))
 
 class cDiscriminator(nn.Module):
@@ -87,16 +83,12 @@ class cDiscriminator(nn.Module):
         super(cDiscriminator,self).__init__()
 
         self.layer1_1 = nn.Linear(in_dim,in_dim//2)
-        self.layer1_1_bn = nn.BatchNorm1d(in_dim//2)
 
         self.layer1_2 = nn.Linear(classes,in_dim//2)
-        self.layer1_2_bn = nn.BatchNorm1d(in_dim//2)
 
         self.layer2 = nn.Linear(in_dim,in_dim//4)
-        self.layer2_bn = nn.BatchNorm1d(in_dim//4)
         
         self.layer3 = nn.Linear(in_dim//4,in_dim//8)
-        self.layer3_bn = nn.BatchNorm1d(in_dim//8)
 
         self.layer4 = nn.Linear(in_dim//8,1)
 
@@ -105,11 +97,11 @@ class cDiscriminator(nn.Module):
         self.dpout = nn.Dropout(0.2)
 
     def forward(self,x,classes):
-        x_z = self.dpout(self.relu(self.layer1_1_bn(self.layer1_1(x))))
-        x_z = self.dpout(self.relu(self.layer1_2_bn(self.layer1_2(classes))))
-
-        x = self.dpout(self.relu(self.layer2_bn(self.layer2(x))))
-        x = self.dpout(self.relu(self.layer3_bn(self.layer3(x))))
+        x_z = self.dpout(self.relu(self.layer1_1(x)))
+        x_c = self.dpout(self.relu(self.layer1_2(classes)))
+        x = torch.cat((x_z,x_c),1)
+        x = self.dpout(self.relu(self.layer2(x)))
+        x = self.dpout(self.relu(self.layer3(x)))
         return self.sigmoid(self.layer4(x))
 
 class cGAN(nn.Module):
